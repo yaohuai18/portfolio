@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>作品集 · 把重复工作做成工具</title>
+<style>
+  :root { --bg:#0f1115; --card:#171a21; --line:#262b36; --fg:#e8eaf0; --dim:#9aa3b2; --acc:#4f8cff; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--fg); font-family:"Segoe UI","Microsoft YaHei",system-ui,sans-serif; line-height:1.7; }
+  .wrap { max-width:1080px; margin:0 auto; padding:48px 24px 80px; }
+  header { padding:64px 0 40px; }
+  h1 { font-size:2.2rem; font-weight:700; }
+  h1 span { color:var(--acc); }
+  .sub { color:var(--dim); margin-top:12px; font-size:1.05rem; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:24px; margin-top:40px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:28px; display:flex; flex-direction:column; gap:14px; transition:border-color .2s; }
+  .card:hover { border-color:var(--acc); }
+  .card h2 { font-size:1.25rem; }
+  .tag { display:inline-block; font-size:.78rem; color:var(--acc); border:1px solid var(--acc); border-radius:999px; padding:2px 10px; width:fit-content; }
+  .desc { color:var(--dim); font-size:.95rem; flex:1; }
+  .points { list-style:none; font-size:.9rem; color:var(--fg); }
+  .points li { padding-left:18px; position:relative; margin:6px 0; }
+  .points li::before { content:"✓"; position:absolute; left:0; color:var(--acc); }
+  .shot { border:1px solid var(--line); border-radius:10px; overflow:hidden; background:#0a0c10; }
+  .shot img { width:100%; display:block; }
+  .links { display:flex; gap:12px; flex-wrap:wrap; }
+  .links a { color:var(--acc); text-decoration:none; font-size:.9rem; border:1px solid var(--line); padding:6px 14px; border-radius:8px; }
+  .links a:hover { border-color:var(--acc); }
+  footer { margin-top:64px; padding-top:24px; border-top:1px solid var(--line); color:var(--dim); font-size:.9rem; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+  footer b { color:var(--fg); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>把重复工作<span>做成工具</span></h1>
+    <p class="sub">三个从需求到上线独立完成的项目：AI 写作平台、写作质检工具、西门子 PLC 梯形图生成器。全部有数据库设计、自动化测试、运维脚本与公开文档。</p>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <span class="tag">AI 长篇小说创作平台</span>
+      <h2>NovelCraft</h2>
+      <div class="shot"><img src="shot-novelcraft-1.png" alt="NovelCraft 作品库"></div>
+      <div class="shot"><img src="shot-novelcraft-3.png" alt="NovelCraft 创作页"></div>
+      <p class="desc">FastAPI + React 前后端分离。大纲、章节、人物、世界观、伏笔全链路管理，AI 流式生成可随时取消。</p>
+      <ul class="points">
+        <li>4 维一致性校验：伏笔顺序 / 时间线 / 人物状态 / 规则关键词</li>
+        <li>追读力报告：章末钩子率、爽点密度、伏笔债务</li>
+        <li>SQLite FTS5 中文全文检索 · WAL 模式 · 每日备份 + 月度恢复演练</li>
+        <li>810 项自动化测试，pytest 基线</li>
+      </ul>
+      <div class="links"><a href="https://github.com/yaohuai18/novelcraft">GitHub 仓库</a></div>
+    </div>
+
+    <div class="card">
+      <span class="tag">中文写作质检工具</span>
+      <h2>墨语编辑器 moyu-editor</h2>
+      <div class="shot"><img src="shot-moyu-2.png" alt="moyu-editor 离线体验版"></div>
+      <p class="desc">Next.js 16 全栈。面向网文作者的 AI 诊断与润色：套话检测、模板化表达评分、文风档案。</p>
+      <ul class="points">
+        <li>AI 诊断 / 润色 / 文风蒸馏，风格档案禁用词接入提示词</li>
+        <li>版本历史、差异对比、一键恢复，保存并发安全（乐观锁）</li>
+        <li>登录注册限流、时序均衡等安全加固</li>
+        <li>unit 112 + api 87 测试基线，一键验证脚本</li>
+      </ul>
+      <div class="links"><a href="https://github.com/yaohuai18/moyu-editor">GitHub 仓库</a></div>
+    </div>
+
+    <div class="card">
+      <span class="tag">PLC · 西门子 TIA Portal V21</span>
+      <h2>LAD 梯形图生成器</h2>
+      <div class="shot"><img src="shot-lad-1.svg" alt="LAD 梯形图示意"></div>
+      <p class="desc">逻辑图自动生成 SimaticML XML，经 TIA Openness API 导入西门子软件。</p>
+      <ul class="points">
+        <li>导入闭环已验证：编译 0 error，再导出与源仅差创建时间戳</li>
+        <li>Control IR 六模板输入 + 语义快照校验</li>
+        <li>对应调试岗场景：程序生成、批量核对、版本比对</li>
+      </ul>
+      <div class="links"><a href="#">源码按需提供</a></div>
+    </div>
+  </div>
+
+  <footer>
+    <div>可承接：<b>小工具定制 · 数据自动化 · 台账系统</b>（面向个人与小企业）</div>
+    <div>在线体验：<a href="demo.html" style="color:var(--acc)">生意台账演示版</a></div>
+  </footer>
+</div>
+</body>
+</html>

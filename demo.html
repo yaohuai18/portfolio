@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>生意台账 · 演示版</title>
+<style>
+  :root { --bg:#f5f6f8; --card:#fff; --line:#e3e6eb; --fg:#1a1d23; --dim:#7a8190; --acc:#2f6bff; --ok:#16a34a; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--fg); font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif; }
+  .wrap { max-width:960px; margin:0 auto; padding:20px 16px 60px; }
+  header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; padding:8px 0 18px; }
+  h1 { font-size:1.3rem; }
+  .tag { font-size:.72rem; color:var(--acc); border:1px solid var(--acc); border-radius:999px; padding:2px 10px; margin-left:8px; vertical-align:2px; }
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin-bottom:16px; }
+  .stat { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px; }
+  .stat b { font-size:1.35rem; display:block; }
+  .stat span { color:var(--dim); font-size:.8rem; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px; margin-bottom:14px; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+  input, select { border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:.92rem; background:#fff; color:var(--fg); }
+  input:focus { outline:2px solid #dbe4ff; border-color:var(--acc); }
+  input[type=date] { min-width:130px; }
+  input[type=number] { min-width:90px; }
+  button { border:0; border-radius:8px; padding:8px 16px; font-size:.92rem; cursor:pointer; }
+  .btn-primary { background:var(--acc); color:#fff; }
+  .btn-ghost { background:#eef2fb; color:var(--acc); }
+  .btn-danger { background:#fef1f0; color:#d23f31; }
+  table { width:100%; border-collapse:collapse; font-size:.88rem; }
+  th, td { text-align:left; padding:9px 8px; border-bottom:1px solid var(--line); }
+  th { color:var(--dim); font-weight:500; font-size:.8rem; white-space:nowrap; }
+  td.money { text-align:right; font-variant-numeric:tabular-nums; }
+  .foot { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-top:18px; color:var(--dim); font-size:.8rem; }
+  .empty { color:var(--dim); text-align:center; padding:28px 0; font-size:.9rem; }
+  .notice { background:#fff8e6; border:1px solid #f2dfa0; border-radius:8px; padding:8px 12px; font-size:.8rem; color:#8a6d1a; margin-bottom:12px; display:none; }
+  @media (max-width:560px){ .row input{flex:1 1 40%;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>生意台账<span class="tag">演示版</span></h1>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn-ghost" id="btn-demo">填入示例数据</button>
+      <button class="btn-ghost" id="btn-export">导出报表</button>
+      <button class="btn-danger" id="btn-clear">清空</button>
+    </div>
+  </header>
+
+  <div class="notice" id="mem-notice">当前浏览器限制本地存储，数据在本次打开期间有效（关掉页面会清空）。</div>
+
+  <div class="stats">
+    <div class="stat"><b id="s-total">0</b><span>总单数</span></div>
+    <div class="stat"><b id="s-amount">¥0</b><span>总金额</span></div>
+    <div class="stat"><b id="s-month">¥0</b><span>本月金额</span></div>
+    <div class="stat"><b id="s-avg">¥0</b><span>平均每单</span></div>
+    <div class="stat"><b id="s-cust">0</b><span>客户数</span></div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <input type="date" id="f-date">
+      <input type="text" id="f-cust" placeholder="客户 / 项目名称">
+      <input type="number" id="f-amount" placeholder="金额（元）">
+      <select id="f-type">
+        <option value="收入">收入</option>
+        <option value="支出">支出</option>
+      </select>
+      <button class="btn-primary" id="btn-add">记一笔</button>
+    </div>
+    <table id="tb">
+      <thead><tr><th>日期</th><th>客户 / 项目</th><th>类型</th><th style="text-align:right">金额</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="empty" id="empty-hint">还没有记录，点「填入示例数据」快速体验</div>
+  </div>
+
+  <div class="foot">
+    <span>数据保存在本机浏览器，关掉再开还在；换电脑请用「导出报表」。</span>
+    <span>演示版 · 按您的生意定制：字段、统计、打印格式都能改</span>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var KEY = "ledger-demo-v1";
+  var memOnly = false;
+  var rows = [];
+
+  // 本地存储：失败就退化为内存模式，保证按钮永远可用
+  try {
+    var raw = window.localStorage.getItem(KEY);
+    if (raw) { rows = JSON.parse(raw) || []; }
+    else { window.localStorage.setItem(KEY, "[]"); }
+  } catch (e) {
+    memOnly = true;
+    rows = [];
+    var n = document.getElementById("mem-notice");
+    if (n) { n.style.display = "block"; }
+  }
+
+  function save() {
+    try {
+      if (!memOnly) { window.localStorage.setItem(KEY, JSON.stringify(rows)); }
+    } catch (e) { /* 内存模式 */ }
+    render();
+  }
+  function fmt(v) { return "¥" + Number(v).toLocaleString("zh-CN", { maximumFractionDigits: 2 }); }
+
+  function addRow() {
+    var d = document.getElementById("f-date").value;
+    var c = document.getElementById("f-cust").value.trim();
+    var a = document.getElementById("f-amount").value;
+    var t = document.getElementById("f-type").value;
+    if (!c || !a) { alert("请填写客户/项目和金额"); return; }
+    rows.push({ date: d || new Date().toISOString().slice(0, 10), cust: c, type: t, amount: Number(a) });
+    document.getElementById("f-cust").value = "";
+    document.getElementById("f-amount").value = "";
+    save();
+  }
+  function delRow(i) { rows.splice(i, 1); save(); }
+
+  function fillDemo() {
+    var today = new Date();
+    function d(n) { var x = new Date(today); x.setDate(x.getDate() - n); return x.toISOString().slice(0, 10); }
+    rows = [
+      { date: d(0), cust: "老王家五金店", type: "收入", amount: 1280 },
+      { date: d(1), cust: "顺发建材", type: "收入", amount: 3560 },
+      { date: d(2), cust: "进货（五金市场）", type: "支出", amount: 2100 },
+      { date: d(4), cust: "阳光小区李姐", type: "收入", amount: 860 },
+      { date: d(6), cust: "顺发建材", type: "收入", amount: 4420 },
+      { date: d(9), cust: "物流运费", type: "支出", amount: 320 },
+      { date: d(12), cust: "城南工地张工", type: "收入", amount: 5950 },
+      { date: d(15), cust: "进货（五金市场）", type: "支出", amount: 3200 }
+    ];
+    save();
+  }
+  function clearAll() { if (confirm("确定清空全部记录？")) { rows = []; save(); } }
+
+  function exportCSV() {
+    if (!rows.length) { alert("没有数据"); return; }
+    var head = "日期,客户/项目,类型,金额";
+    var body = rows.map(function (r) { return [r.date, '"' + r.cust + '"', r.type, r.amount].join(","); }).join("\n");
+    var blob = new Blob(["﻿" + head + "\n" + body], { type: "text/csv;charset=utf-8" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "台账报表_" + new Date().toISOString().slice(0, 10) + ".csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  function render() {
+    var tb = document.querySelector("#tb tbody");
+    tb.innerHTML = rows.map(function (r, i) {
+      return "<tr><td>" + r.date + "</td><td>" + r.cust + "</td>" +
+        '<td style="color:' + (r.type === "收入" ? "var(--ok)" : "var(--fg)") + '">' + r.type + "</td>" +
+        '<td class="money">' + fmt(r.amount) + "</td>" +
+        '<td><button class="btn-danger" style="padding:3px 8px;font-size:.75rem" data-idx="' + i + '">删</button></td></tr>';
+    }).join("");
+    document.getElementById("empty-hint").style.display = rows.length ? "none" : "block";
+
+    var total = 0, month = 0;
+    var custSet = {};
+    var m = new Date().toISOString().slice(0, 7);
+    rows.forEach(function (r) {
+      total += r.amount;
+      if (r.date && r.date.slice(0, 7) === m) { month += r.amount; }
+      custSet[r.cust] = 1;
+    });
+    document.getElementById("s-total").textContent = rows.length;
+    document.getElementById("s-amount").textContent = fmt(total);
+    document.getElementById("s-month").textContent = fmt(month);
+    document.getElementById("s-avg").textContent = fmt(rows.length ? total / rows.length : 0);
+    document.getElementById("s-cust").textContent = Object.keys(custSet).length;
+  }
+
+  // 事件绑定（不依赖内联 onclick，任何浏览器都生效）
+  document.getElementById("btn-demo").addEventListener("click", fillDemo);
+  document.getElementById("btn-add").addEventListener("click", addRow);
+  document.getElementById("btn-export").addEventListener("click", exportCSV);
+  document.getElementById("btn-clear").addEventListener("click", clearAll);
+  // 删除按钮用事件委托
+  document.querySelector("#tb tbody").addEventListener("click", function (e) {
+    var el = e.target.closest("button[data-idx]");
+    if (el) { delRow(Number(el.getAttribute("data-idx"))); }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

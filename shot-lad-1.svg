@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">
+  <rect width="640" height="360" fill="#0a0c10"/>
+  <text x="32" y="40" fill="#9aa3b2" font-size="16" font-family="Consolas,monospace">LAD rung: I0.0 AND I0.1 -&gt; Q0.0</text>
+  <!-- 左母线/右母线 -->
+  <line x1="90" y1="80" x2="90" y2="300" stroke="#4f8cff" stroke-width="4"/>
+  <line x1="550" y1="80" x2="550" y2="300" stroke="#4f8cff" stroke-width="4"/>
+  <!-- 第一行：常开触点 I0.0 -->
+  <line x1="90" y1="130" x2="150" y2="130" stroke="#e8eaf0" stroke-width="3"/>
+  <line x1="170" y1="130" x2="230" y2="130" stroke="#e8eaf0" stroke-width="3"/>
+  <line x1="150" y1="108" x2="150" y2="152" stroke="#e8eaf0" stroke-width="3"/>
+  <line x1="170" y1="108" x2="170" y2="152" stroke="#e8eaf0" stroke-width="3"/>
+  <text x="138" y="182" fill="#9aa3b2" font-size="13" font-family="Consolas,monospace">I0.0</text>
+  <!-- 第二行：常开触点 I0.1 -->
+  <line x1="230" y1="130" x2="260" y2="200" stroke="#e8eaf0" stroke-width="3"/>
+  <line x1="260" y1="200" x2="300" y2="200" stroke="#e8eaf0" stroke-width="3"/>
+  <line x1="320" y1="200" x2="360" y2="200" stroke="#e8eaf0" stroke-width="3"/>
+  <line x1="300" y1="178" x2="300" y2="222" stroke="#e8eaf0" stroke-width="3"/>
+  <line x1="320" y1="178" x2="320" y2="222" stroke="#e8eaf0" stroke-width="3"/>
+  <text x="288" y="252" fill="#9aa3b2" font-size="13" font-family="Consolas,monospace">I0.1</text>
+  <!-- 线圈 Q0.0 -->
+  <line x1="360" y1="200" x2="420" y2="200" stroke="#e8eaf0" stroke-width="3"/>
+  <ellipse cx="440" cy="200" rx="30" ry="20" fill="none" stroke="#e8eaf0" stroke-width="3"/>
+  <line x1="470" y1="200" x2="550" y2="200" stroke="#e8eaf0" stroke-width="3"/>
+  <text x="420" y="252" fill="#9aa3b2" font-size="13" font-family="Consolas,monospace">Q0.0</text>
+  <!-- SimaticML 映射提示 -->
+  <text x="90" y="336" fill="#4f8cff" font-size="13" font-family="Consolas,monospace">&lt;Access Decl&gt; I0.0,I0.1 / &lt;Coil&gt; Q0.0  -&gt;  SimaticML XML</text>
+</svg>
